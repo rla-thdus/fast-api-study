@@ -1,15 +1,21 @@
-from typing import Union
-
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
+fake_user_db = list()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+class User(BaseModel):
+    email: str
+    pwd: str
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.get("/users")
+def get_users():
+    return fake_user_db
+
+
+@app.post("/register")
+def create_user(user: User):
+    fake_user_db.append({"id": user.email, "pwd": user.pwd})
+    return {"message": "register success"}
