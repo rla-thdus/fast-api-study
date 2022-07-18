@@ -28,7 +28,7 @@ def get_users():
 
 @app.post("/register", response_model=schema.User)
 def create_user(user: schema.UserBase, db: Session = Depends(get_db)):
-    db_user = db.query(model.User).filter(model.User.email==user.email).first()
+    db_user = crud.check_duplicated_email(db, user.email)
     if db_user:
         raise HTTPException(400, detail="email duplicated")
     crud.register_user(db, user)
