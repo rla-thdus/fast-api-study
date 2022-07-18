@@ -1,13 +1,22 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+
+from crud import register_user
+from database import Base, engine, SessionLocal
+from schema import UserBase
 
 app = FastAPI()
 fake_user_db = list()
 
+Base.metadata.create_all(bind=engine)
 
-class User(BaseModel):
-    email: str
-    pwd: str
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/users")
@@ -16,6 +25,8 @@ def get_users():
 
 
 @app.post("/register")
-def create_user(user: User):
-    fake_user_db.append({"id": user.email, "pwd": user.pwd})
+def create_user(user: UserBase, db: Session = Depends(get_db)):
+    register_user(db, user)
     return {"message": "register success"}
+
+
