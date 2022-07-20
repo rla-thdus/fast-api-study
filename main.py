@@ -21,9 +21,9 @@ def get_db():
         db.close()
 
 
-@app.get("/users")
-def get_users():
-    return fake_user_db
+@app.get("/users", response_model=list[schema.User])
+def get_users(db: Session = Depends(get_db)):
+    return db.query(model.User).all()
 
 
 @app.post("/register", response_model=schema.User)
@@ -33,5 +33,3 @@ def create_user(user: schema.UserBase, db: Session = Depends(get_db)):
         raise HTTPException(400, detail="email duplicated")
     crud.register_user(db, user)
     return {"message": "register success"}
-
-
