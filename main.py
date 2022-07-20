@@ -1,7 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-import model
 from database import Base, engine, SessionLocal
 
 import crud
@@ -23,7 +21,8 @@ def get_db():
 
 @app.get("/users", response_model=list[schema.User])
 def get_users(db: Session = Depends(get_db)):
-    return db.query(model.User).all()
+    users = crud.get_users(db)
+    return users
 
 
 @app.post("/register", response_model=schema.User)
