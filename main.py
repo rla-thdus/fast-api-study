@@ -30,5 +30,5 @@ def create_user(user: schema.UserBase, db: Session = Depends(get_db)):
     db_user = crud.check_duplicated_email(db, user.email)
     if db_user:
         raise HTTPException(400, detail="email duplicated")
-    crud.register_user(db, user)
-    return {"message": "register success"}
+    user = crud.register_user(db, user)
+    return user
