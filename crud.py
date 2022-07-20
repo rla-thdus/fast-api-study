@@ -10,5 +10,10 @@ def register_user(db: Session, user: UserBase):
     db.refresh(db_user)
     return db_user
 
+
 def check_duplicated_email(db: Session, email: str):
     return db.query(model.User).filter(model.User.email == email).first()
+
+
+def get_users(db: Session):
+    return db.query(model.User).all()

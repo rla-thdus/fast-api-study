@@ -1,7 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-import model
 from database import Base, engine, SessionLocal
 
 import crud
@@ -21,17 +19,16 @@ def get_db():
         db.close()
 
 
-@app.get("/users")
-def get_users():
-    return fake_user_db
+@app.get("/users", response_model=list[schema.User])
+def get_users(db: Session = Depends(get_db)):
+    users = crud.get_users(db)
+    return users
 
 
-@app.post("/register", response_model=schema.User)
+@app.post("/user", response_model=schema.User)
 def create_user(user: schema.UserBase, db: Session = Depends(get_db)):
     db_user = crud.check_duplicated_email(db, user.email)
     if db_user:
         raise HTTPException(400, detail="email duplicated")
-    crud.register_user(db, user)
-    return {"message": "register success"}
-
-
+    user = crud.register_user(db, user)
+    return user
